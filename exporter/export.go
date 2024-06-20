@@ -1,14 +1,11 @@
 package exporter
 
 import (
-	"log"
-
 	"github.com/cilium/ebpf"
 )
 
 func UpdateMetrics(m *ebpf.Map) {
 	defer m.Close()
-	log.Println("Updating Metrics")
 	itr := m.Iterate()
 
 	var (
@@ -17,6 +14,6 @@ func UpdateMetrics(m *ebpf.Map) {
 	)
 
 	for itr.Next(&key, &val) {
-		MetricsParameters[key].Add(float64(val))
+		MetricsParameters[key].Set(float64(val))
 	}
 }

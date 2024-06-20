@@ -34,7 +34,7 @@ func SCM() {
 
 	defer link.Close()
 
-	tick := time.NewTicker(2 * time.Second)
+	tick := time.NewTicker(time.Second)
 	defer tick.Stop()
 	stop := make(chan os.Signal, 5)
 	signal.Notify(stop, os.Interrupt)
@@ -46,7 +46,6 @@ func SCM() {
 				log.Println("Duplicating Buffer: ", err)
 			}
 			go exporter.UpdateMetrics(dup)
-			log.Println("Tick Tock")
 		case <-stop:
 			if err := objs.SysCalls.Close(); err != nil {
 				log.Println("Closing Map: ", err)

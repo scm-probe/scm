@@ -46,7 +46,7 @@ func ParseSysCallTableToString() map[int]string {
 	return syscall
 }
 
-func ParseSysCallTableToPromCounter() map[uint64]prometheus.Counter {
+func ParseSysCallTableToPromCounter() map[uint64]prometheus.Gauge {
 	file, err := os.Open("syscalls_6.9.0.csv")
 
 	if err != nil {
@@ -65,7 +65,7 @@ func ParseSysCallTableToPromCounter() map[uint64]prometheus.Counter {
 
 	log.Println("Reading: ", len(records), " records")
 
-	syscall := make(map[uint64]prometheus.Counter)
+	syscall := make(map[uint64]prometheus.Gauge)
 
 	for _, record := range records {
 		call := record[0]
@@ -74,8 +74,8 @@ func ParseSysCallTableToPromCounter() map[uint64]prometheus.Counter {
 			continue
 		}
 		key, _ := strconv.Atoi(args[0])
-		syscall[uint64(key)] = promauto.NewCounter(prometheus.CounterOpts{
-			Name: fmt.Sprintf("scm_%s_call_count_total", args[1]),
+		syscall[uint64(key)] = promauto.NewGauge(prometheus.GaugeOpts{
+			Name: fmt.Sprintf("scm_%s_call_count", args[1]),
 			Help: fmt.Sprintf("Total number of calls for system call: %s", args[1]),
 		})
 	}
