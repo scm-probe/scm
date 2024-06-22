@@ -24,9 +24,9 @@ func SCM(procIDs []int) {
 	defer objs.Close()
 
 	// setting the pid of this process
-	for i, p := range procIDs {
+	for _, p := range procIDs {
 		log.Println("Running process id: ", p)
-		err := objs.ProcMap.Put(uint32(i), uint64(p))
+		err := objs.ProcMap.Put(uint32(p), uint16(1))
 		if err != nil {
 			log.Println("Putting Process in Map: ", err)
 			os.Exit(1)
@@ -47,18 +47,14 @@ func SCM(procIDs []int) {
 	if err != nil {
 		log.Println("Putting Process ID: ", err)
 	}
-	tick := time.NewTicker(time.Second)
+	tick := time.NewTicker(2 * time.Second)
 	defer tick.Stop()
 	stop := make(chan os.Signal, 5)
 	signal.Notify(stop, os.Interrupt)
 	for {
 		select {
 		case <-tick.C:
-			dup, err := objs.SysCalls.Clone()
-			if err != nil {
-				log.Println("Duplicating Buffer: ", err)
-			}
-			go exporter.UpdateMetrics(dup)
+			go exporter.UpdateMetrics(objs.SysCalls)
 		case <-stop:
 			if err := objs.SysCalls.Close(); err != nil {
 				log.Println("Closing Map: ", err)

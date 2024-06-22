@@ -20,7 +20,7 @@ type DumpString struct {
 }
 
 func ProcessDump() {
-	f, err := os.Open("dump.json")
+	f, err := os.Open("temp/dump.json")
 
 	if err != nil {
 		log.Println("Opening Dump File: ", err)
@@ -52,7 +52,7 @@ func ProcessDump() {
 		log.Println("Formatting output: ", err)
 	}
 
-	err = os.WriteFile("dump_processed.json", opt, 0644)
+	err = os.WriteFile("temp/dump_processed.json", opt, 0644)
 
 	if err != nil {
 		log.Println("Writing output: ", err)

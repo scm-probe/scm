@@ -12,8 +12,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-func ParseSysCallTableToString() map[int]string {
-	file, err := os.Open("syscalls_6.9.0.csv")
+func parseSysCallTable(name string) [][]string {
+	file, err := os.Open("syscalls.csv")
 
 	if err != nil {
 		log.Println("Error in opening csv table: ", err)
@@ -30,6 +30,12 @@ func ParseSysCallTableToString() map[int]string {
 	}
 
 	log.Println("Reading: ", len(records), " records")
+	return records
+}
+
+func ParseSysCallTableToString() map[int]string {
+
+	records := parseSysCallTable("syscall.csv")
 
 	syscall := make(map[int]string)
 
@@ -47,23 +53,8 @@ func ParseSysCallTableToString() map[int]string {
 }
 
 func ParseSysCallTableToPromCounter() map[uint64]prometheus.Gauge {
-	file, err := os.Open("syscalls_6.9.0.csv")
 
-	if err != nil {
-		log.Println("Error in opening csv table: ", err)
-	}
-
-	defer file.Close()
-
-	csvReader := csv.NewReader(file)
-
-	records, err := csvReader.ReadAll()
-
-	if err != nil {
-		log.Println("Error in reading csv: ", err)
-	}
-
-	log.Println("Reading: ", len(records), " records")
+	records := parseSysCallTable("syscall.csv")
 
 	syscall := make(map[uint64]prometheus.Gauge)
 

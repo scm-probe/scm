@@ -9,8 +9,8 @@ import (
 	"strings"
 )
 
-func GetProcsByName(name string) []int {
-	processes, _ := exec.Command("/bin/sh", "-c", fmt.Sprintf("pgrep %s", name)).Output()
+func GetProcsByName() []int {
+	processes, _ := exec.Command("/bin/sh", "-c", fmt.Sprintf("pgrep %s", ProcName)).Output()
 	var Procs []int
 	if len(processes) == 0 {
 		log.Println("Getting Process: No Process Found")
