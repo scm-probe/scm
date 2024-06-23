@@ -13,7 +13,7 @@ func UpdateMetrics(m *ebpf.Map) {
 		key uint64
 		val uint64
 	)
-
+	log.Println("Updating Metrics")
 	for itr.Next(&key, &val) {
 		log.Println(key, val)
 		MetricsParameters[key].Set(float64(val))
