@@ -7,3 +7,4 @@ temp/
 syscalls.csv
 scm/scm_*.go
 scm/scm_*.o
+testing/bin

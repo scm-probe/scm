@@ -33,7 +33,7 @@ func SCM(procIDs []int) {
 		}
 	}
 
-	link, err := link.AttachRawTracepoint(link.RawTracepointOptions{
+	rtp, err := link.AttachRawTracepoint(link.RawTracepointOptions{
 		Program: objs.BpfProg,
 		Name:    "sys_enter",
 	})
@@ -42,7 +42,14 @@ func SCM(procIDs []int) {
 		log.Println("Attach Tracepoint: ", err)
 	}
 
-	defer link.Close()
+	sysExitFork, err := link.Tracepoint("syscalls", "sys_exit_clone", objs.AddClone, nil)
+
+	if err != nil {
+		log.Println("Attach Tracepoint: ", err)
+	}
+
+	defer rtp.Close()
+	defer sysExitFork.Close()
 
 	if err != nil {
 		log.Println("Putting Process ID: ", err)

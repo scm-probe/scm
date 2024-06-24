@@ -10,6 +10,9 @@ import (
 )
 
 func GetProcsByName() []int {
+	if ProcID > 0 {
+		return []int{ProcID}
+	}
 	processes, _ := exec.Command("/bin/sh", "-c", fmt.Sprintf("pgrep %s", ProcName)).Output()
 	var Procs []int
 	if len(processes) == 0 {
