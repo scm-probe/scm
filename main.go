@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
-	"net/http"
+	"os"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	exp "github.com/utkarsh-1905/scm/exporter"
+	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/joho/godotenv"
 	"github.com/utkarsh-1905/scm/scm"
 	"github.com/utkarsh-1905/scm/utils"
 )
@@ -13,13 +14,27 @@ import (
 func main() {
 	log.Println("Starting Metrics Server")
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	utils.AddAndParseFlags()
 	processes := utils.GetProcsByName()
 
-	exp.MakeMetrics()
+	influxToken := os.Getenv("INFLUXDB_TOKEN")
+	url := "http://localhost:8086"
+	client := influxdb2.NewClient(url, influxToken)
+	defer client.Close()
+	org := "scm"
+	bucket := "scm_monitoring"
+	writeAPI := client.WriteAPI(org, bucket)
 
-	go scm.SCM(processes)
+	ready, err := client.Ready(context.Background())
+	if err != nil {
+		log.Println("Error in InfluxDB: ", err)
+	}
+	log.Println("Influx DB Ready? ", *ready.Status, " Since: ", *ready.Up)
 
-	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":1910", nil)
+	scm.SCM(processes, writeAPI)
 }

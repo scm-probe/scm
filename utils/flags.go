@@ -19,13 +19,13 @@ func AddAndParseFlags() {
 
 	flag.Parse()
 
+	if ParseDump {
+		ProcessDump()
+	}
+
 	if ProcName == "" && ProcID == -1 {
 		log.Println("Invalid Process : ", ProcName)
 		os.Exit(0)
-	}
-
-	if ParseDump {
-		ProcessDump()
 	}
 
 	if *HELP {

@@ -8,11 +8,12 @@ import (
 
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/rlimit"
+	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/utkarsh-1905/scm/exporter"
 )
 
 // SCM: system-call-monitor
-func SCM(procIDs []int) {
+func SCM(procIDs []int, influxWrite api.WriteAPI) {
 	if err := rlimit.RemoveMemlock(); err != nil {
 		log.Fatal("Removing memlock:", err)
 	}
@@ -42,26 +43,26 @@ func SCM(procIDs []int) {
 		log.Println("Attach Tracepoint: ", err)
 	}
 
-	sysExitFork, err := link.Tracepoint("syscalls", "sys_exit_clone", objs.AddClone, nil)
+	// sysExitFork, err := link.Tracepoint("syscalls", "sys_exit_clone", objs.AddClone, nil)
 
 	if err != nil {
 		log.Println("Attach Tracepoint: ", err)
 	}
 
 	defer rtp.Close()
-	defer sysExitFork.Close()
+	// defer sysExitFork.Close()
 
 	if err != nil {
 		log.Println("Putting Process ID: ", err)
 	}
-	tick := time.NewTicker(2 * time.Second)
+	tick := time.NewTicker(5 * time.Second)
 	defer tick.Stop()
 	stop := make(chan os.Signal, 5)
 	signal.Notify(stop, os.Interrupt)
 	for {
 		select {
 		case <-tick.C:
-			go exporter.UpdateMetrics(objs.SysCalls)
+			go exporter.UpdateMetrics(objs.SysCalls, influxWrite)
 		case <-stop:
 			if err := objs.SysCalls.Close(); err != nil {
 				log.Println("Closing Map: ", err)
