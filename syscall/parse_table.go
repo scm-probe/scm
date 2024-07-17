@@ -13,7 +13,7 @@ import (
 )
 
 func parseSysCallTable(name string) [][]string {
-	file, err := os.Open("syscalls.csv")
+	file, err := os.Open(name)
 
 	if err != nil {
 		log.Println("Error in opening csv table: ", err)
@@ -33,11 +33,11 @@ func parseSysCallTable(name string) [][]string {
 	return records
 }
 
-func ParseSysCallTableToString() map[int]string {
+func ParseSysCallTableToString() map[uint64]string {
 
-	records := parseSysCallTable("syscall.csv")
+	records := parseSysCallTable("syscalls.csv")
 
-	syscall := make(map[int]string)
+	syscall := make(map[uint64]string)
 
 	for _, record := range records {
 		call := record[0]
@@ -46,7 +46,7 @@ func ParseSysCallTableToString() map[int]string {
 			continue
 		}
 		key, _ := strconv.Atoi(args[0])
-		syscall[key] = args[1]
+		syscall[uint64(key)] = args[1]
 	}
 
 	return syscall
@@ -58,6 +58,9 @@ func ParseSysCallTableToPromCounter() map[uint64]prometheus.Gauge {
 
 	syscall := make(map[uint64]prometheus.Gauge)
 
+	labels := make(map[string]string)
+	labels["scm"] = "true"
+	labels["type"] = "test"
 	for _, record := range records {
 		call := record[0]
 		args := strings.Split(call, "	")
@@ -66,8 +69,9 @@ func ParseSysCallTableToPromCounter() map[uint64]prometheus.Gauge {
 		}
 		key, _ := strconv.Atoi(args[0])
 		syscall[uint64(key)] = promauto.NewGauge(prometheus.GaugeOpts{
-			Name: fmt.Sprintf("scm_%s_call_count", args[1]),
-			Help: fmt.Sprintf("Total number of calls for system call: %s", args[1]),
+			Name:        fmt.Sprintf("scm_%s_call_count", args[1]),
+			Help:        fmt.Sprintf("Total number of calls for system call: %s", args[1]),
+			ConstLabels: labels,
 		})
 	}
 

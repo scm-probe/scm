@@ -20,7 +20,7 @@ SCM or system-call-montior is monitoring/auditing tool aimed at tracing system c
 ## Developing Environment
 
 - Go version=1.22.0+
-- Linux Kernel=6.5.0+
+- Linux Kernel=5.7.0+
 - [Kernel Config Requirements](https://github.com/iovisor/bcc/blob/master/docs/kernel_config.md) - mostly they are present, but if not, use this to debug
 
 ## Debug

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -20,6 +21,7 @@ type DumpString struct {
 }
 
 func ProcessDump() {
+	fmt.Println("Processing Dump")
 	f, err := os.Open("temp/dump.json")
 
 	if err != nil {
@@ -42,7 +44,7 @@ func ProcessDump() {
 
 	for _, v := range vals {
 		var o DumpString
-		o.Key = table[int(v.Key)]
+		o.Key = table[uint64(v.Key)]
 		o.Value = v.Value
 		output = append(output, o)
 	}
