@@ -11,11 +11,15 @@ SCM or system-call-montior is monitoring/auditing tool aimed at tracing system c
 
 ## Running Locally for Development
 
+- Install libbpf `sudo apt install libbpf-dev` for Debian/Ubuntu and `libbpf-devel` for Fedora
+- Install clang `sudo apt install clang` and llvm
+- Install Kernel Headers using `sudo apt install linux-headers-$(uname -r)`
+- On Debian, you may also need `ln -sf /usr/include/asm-generic/ /usr/include/asm`.
 - First generate a system call map for your kernel (Currently supports linux kernels) using `ausyscall $(uname -r) --dump > syscall.csv`
 - Run `go get` to install all the required packages
 - Run `make generate` to compile the eBPF code to object file and generate go scaffolding
 - Run `make build` to compile the app
-- Run `sudo ./main -n="name of the process you want to trace"` to run the compiled binary
+- Run `sudo ./main -n="name of the process you want to trace"` to run the compiled binary, you can also use `-id=<id of proc>` flag to explicilty provide the process id to track.
 
 ## Developing Environment
 
