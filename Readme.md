@@ -7,7 +7,9 @@ SCM or system-call-montior is monitoring/auditing tool aimed at tracing system c
 - Develop a CLI tool to attach the program to any process
 - Make the tool interoperable for both linux and windows kernel
 - Make the tool os independant, it should only rely on the underlying kernel to trace the calls
-- Develop dashboards on Grafana to show effective insights
+- Develop dashboards to show effective insights
+- Develop auditing tool to generate audit reports of syscalls for a period
+- Develop warning generation mechanism
 
 ## Running Locally for Development
 
