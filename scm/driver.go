@@ -11,6 +11,7 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/utkarsh-1905/scm/exporter"
 	sc_graph "github.com/utkarsh-1905/scm/graph"
+	"github.com/utkarsh-1905/scm/utils"
 )
 
 // SCM: system-call-monitor
@@ -57,17 +58,22 @@ func SCM(procIDs []int, influxWrite api.WriteAPI) {
 		log.Println("Putting Process ID: ", err)
 	}
 
-	go sc_graph.ReadQueue(objs.CallQueue)
-
 	tick := time.NewTicker(5 * time.Second)
 	defer tick.Stop()
 	stop := make(chan os.Signal, 5)
 	signal.Notify(stop, os.Interrupt)
+
+	if utils.Graph {
+		go sc_graph.ReadQueue(objs.CallQueue)
+	}
+
 	for {
 		select {
 		case <-tick.C:
 			go exporter.UpdateMetrics(objs.SysCalls, influxWrite)
+
 		case <-stop:
+			sc_graph.DrawGraph()
 			if err := objs.SysCalls.Close(); err != nil {
 				log.Println("Closing Map: ", err)
 			}
