@@ -17,9 +17,10 @@ SCM or system-call-montior is monitoring/auditing tool aimed at tracing system c
 - Install clang `sudo apt install clang` and llvm
 - Install Kernel Headers using `sudo apt install linux-headers-$(uname -r)`
 - On Debian, you may also need `ln -sf /usr/include/asm-generic/ /usr/include/asm`.
-- First generate a system call map for your kernel (Currently supports linux kernels) using `ausyscall $(uname -r) --dump > syscall.csv`
+- First generate a system call map for your kernel (Currently supports linux kernels) using `make syscall-table` or `ausyscall $(uname -r) --dump > syscall.csv`
 - Run `go get` to install all the required packages
 - Run `make generate` to compile the eBPF code to object file and generate go scaffolding
+- Provision the monitoring resources using `make provision` and shut them down using `make tear`.
 - Run `make build` to compile the app
 - Run `sudo ./main -n="name of the process you want to trace"` to run the compiled binary, you can also use `-id=<id of proc>` flag to explicilty provide the process id to track.
 
@@ -35,3 +36,16 @@ SCM or system-call-montior is monitoring/auditing tool aimed at tracing system c
 - `bpftool prog list` to show all bpf programs loaded
 - `bpftool map list` to show all BPF maps loaded
 - `bpftool map dump <id>` to display contents of map in json, you can get the id of the map from above list command
+
+## Graph Mode
+
+- To graph out system call sequence, pass the `-g=true` to the program, when you exit the program, it will generate a dot file in the `temp` directory.
+- Run `make simple-graph` to generate a simple graph svg of the system calls in the temp folder.
+
+## Visualizations
+
+![Influx Dashboard](./assets/readme/influx_dashboard.png)
+![Graph 1](./assets/readme/zed_3s.svg)
+![Graph 2](./assets/readme/zed_10s.svg)
+
+These are visualizations for the Zed code editor. The first image shows the dashboard for the editor, the second and third images show the sequence of system calls made by the editor for a window of 3s and 10s respectively.

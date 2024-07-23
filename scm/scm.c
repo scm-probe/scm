@@ -39,32 +39,34 @@ static void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
     __u32 pid = bpf_get_current_pid_tgid() >> 32;
     __u16 *p;
     p = bpf_map_lookup_elem(&proc_map, &pid);
-    if(p != 0){
-        if(*p==1){
-            __u64 call_id = ctx->args[1];
-            __u64 count = 0;
-            __u64 *calls;
+    if(p != 0 && *p==1){
+        unsigned long call_id = ctx->args[1];
+        __u64 count = 0;
+        __u64 *calls;
 
-            calls = bpf_map_lookup_elem(&sys_calls, &call_id);
-            if(calls != 0){
-                count = *calls;
-            }
-            count++;
-            bpf_map_update_elem(&sys_calls, &call_id, &count, BPF_ANY);
-            bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
+        calls = bpf_map_lookup_elem(&sys_calls, &call_id);
+        if(calls != 0){
+            count = *calls;
         }
+        count++;
+        bpf_map_update_elem(&sys_calls, &call_id, &count, BPF_ANY);
+        bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
     }
 }
-
+// fork and vfork calls use clone call instead so tracking the clone syscall
 SEC("tp/syscalls/sys_exit_clone")
 static __always_inline void add_clone(struct syscall_fork_exit_t* ctx){
     __u32 pid = bpf_get_current_pid_tgid() >> 32;
     __u16 *p;
     p = bpf_map_lookup_elem(&proc_map, &pid);
+    __u16 t = 1;
     if(p != 0 && *p==1){
         long child_id = ctx->ret;
-        bpf_printk("Parent: %u, Child: %ld", pid, child_id);
+        if(child_id==0){
+            return;
+        }
+        bpf_map_update_elem(&proc_map, &child_id, &t, BPF_ANY);
     }
 }
 
-char __license[] SEC("license") = "GPL";
+char __license[] SEC("license") = "Dual MIT/GPL";

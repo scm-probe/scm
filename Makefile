@@ -10,6 +10,15 @@ build:
 exec:
 	sudo ./main
 
+syscall-table:
+	ausyscall $(uname -r) --dump > syscall.csv
+
+provision:
+	docker compose -f monitor.docker-compose.yaml up -d
+
+tear:
+	docker compose -f monitor.docker-compose.yaml down
+
 clean-influx:
 	docker exec -it influxdb influx delete --bucket scm_monitoring \
   --start 2024-03-01T00:00:00Z \

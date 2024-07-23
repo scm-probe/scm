@@ -45,14 +45,14 @@ func SCM(procIDs []int, influxWrite api.WriteAPI) {
 		log.Println("Attach Tracepoint: ", err)
 	}
 
-	// sysExitFork, err := link.Tracepoint("syscalls", "sys_exit_clone", objs.AddClone, nil)
+	sysExitFork, err := link.Tracepoint("syscalls", "sys_exit_clone", objs.AddClone, nil)
 
 	if err != nil {
 		log.Println("Attach Tracepoint: ", err)
 	}
 
 	defer rtp.Close()
-	// defer sysExitFork.Close()
+	defer sysExitFork.Close()
 
 	if err != nil {
 		log.Println("Putting Process ID: ", err)
