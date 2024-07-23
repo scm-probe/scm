@@ -51,9 +51,7 @@ static void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
             }
             count++;
             bpf_map_update_elem(&sys_calls, &call_id, &count, BPF_ANY);
-            bpf_printk("Before Queue push: %ld", call_id);
-            int queue_push = bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
-            bpf_printk("Queue push result: %d\n", queue_push);
+            bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
         }
     }
 }

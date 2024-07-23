@@ -18,3 +18,5 @@ clean-influx:
 simple-graph:
 	dot -Tsvg -O temp/graph.gv
 	echo "Graph svg is created in temp folder"
+	# for GNOME users
+	xdg-open temp/graph.gv.svg

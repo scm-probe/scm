@@ -71,12 +71,8 @@ func SCM(procIDs []int, influxWrite api.WriteAPI) {
 		select {
 		case <-tick.C:
 			go exporter.UpdateMetrics(objs.SysCalls, influxWrite)
-
 		case <-stop:
 			sc_graph.DrawGraph()
-			if err := objs.SysCalls.Close(); err != nil {
-				log.Println("Closing Map: ", err)
-			}
 			log.Println("Received signal, exiting..")
 			os.Exit(0)
 			return
