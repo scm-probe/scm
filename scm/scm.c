@@ -17,6 +17,12 @@ struct {
     __uint(max_entries, 100);
 } proc_map SEC(".maps");
 
+struct {
+	__uint(type, BPF_MAP_TYPE_QUEUE);
+	__uint(max_entries, 100000);
+	__type(value, __u64);
+} call_queue SEC(".maps");
+
 struct syscall_fork_exit_t {
     unsigned short common_type;
     unsigned char common_flags;
@@ -28,14 +34,14 @@ struct syscall_fork_exit_t {
 };
 
 SEC("raw_tracepoint/sys_enter")
-static __always_inline void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
+static void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
 
     __u32 pid = bpf_get_current_pid_tgid() >> 32;
     __u16 *p;
     p = bpf_map_lookup_elem(&proc_map, &pid);
     if(p != 0){
         if(*p==1){
-            unsigned long call_id = ctx->args[1];
+            __u64 call_id = ctx->args[1];
             __u64 count = 0;
             __u64 *calls;
 
@@ -45,6 +51,8 @@ static __always_inline void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
             }
             count++;
             bpf_map_update_elem(&sys_calls, &call_id, &count, BPF_ANY);
+            long queue_push = bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
+            bpf_printk("Queue push result: %l\n", queue_push);
         }
     }
 }
@@ -60,4 +68,4 @@ static __always_inline void add_clone(struct syscall_fork_exit_t* ctx){
     }
 }
 
-char __license[] SEC("license") = "Dual MIT/GPL";
+char __license[] SEC("license") = "GPL";

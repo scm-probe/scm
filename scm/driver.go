@@ -10,6 +10,7 @@ import (
 	"github.com/cilium/ebpf/rlimit"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/utkarsh-1905/scm/exporter"
+	sc_graph "github.com/utkarsh-1905/scm/graph"
 )
 
 // SCM: system-call-monitor
@@ -55,6 +56,9 @@ func SCM(procIDs []int, influxWrite api.WriteAPI) {
 	if err != nil {
 		log.Println("Putting Process ID: ", err)
 	}
+
+	go sc_graph.ReadQueue(objs.CallQueue)
+
 	tick := time.NewTicker(5 * time.Second)
 	defer tick.Stop()
 	stop := make(chan os.Signal, 5)
