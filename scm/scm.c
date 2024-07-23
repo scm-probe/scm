@@ -17,6 +17,12 @@ struct {
     __uint(max_entries, 100);
 } proc_map SEC(".maps");
 
+struct {
+	__uint(type, BPF_MAP_TYPE_QUEUE);
+	__uint(max_entries, 100000);
+	__type(value, __u64);
+} call_queue SEC(".maps");
+
 struct syscall_fork_exit_t {
     unsigned short common_type;
     unsigned char common_flags;
@@ -28,7 +34,7 @@ struct syscall_fork_exit_t {
 };
 
 SEC("raw_tracepoint/sys_enter")
-static __always_inline void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
+static void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
 
     __u32 pid = bpf_get_current_pid_tgid() >> 32;
     __u16 *p;
@@ -44,6 +50,7 @@ static __always_inline void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
         }
         count++;
         bpf_map_update_elem(&sys_calls, &call_id, &count, BPF_ANY);
+        bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
     }
 }
 // fork and vfork calls use clone call instead so tracking the clone syscall
