@@ -1,13 +1,14 @@
 package main
 
 import (
-	"context"
 	"log"
-	"os"
+	"net/http"
 
-	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/utkarsh-1905/scm/scm"
+	"github.com/utkarsh-1905/scm/server"
+	"github.com/utkarsh-1905/scm/signal"
 	"github.com/utkarsh-1905/scm/utils"
 )
 
@@ -20,21 +21,41 @@ func main() {
 	}
 
 	utils.AddAndParseFlags()
-	processes := utils.GetProcsByName()
 
-	influxToken := os.Getenv("INFLUXDB_TOKEN")
-	url := "http://localhost:8086"
-	client := influxdb2.NewClient(url, influxToken)
-	defer client.Close()
-	org := "scm"
-	bucket := "scm_monitoring"
-	writeAPI := client.WriteAPI(org, bucket)
+	r := mux.NewRouter()
 
-	ready, err := client.Ready(context.Background())
-	if err != nil {
-		log.Println("Error in InfluxDB: ", err)
-	}
-	log.Println("Influx DB Ready? ", *ready.Status, " Since: ", *ready.Up)
+	subRouter := r.PathPrefix("/").Subrouter()
+	server.RegisterRoutesAndMiddleware(subRouter)
+	r.PathPrefix("/").Handler(subRouter)
 
-	scm.SCM(processes, writeAPI)
+	defer signal.KillAllChan()
+
+	influxWrite := utils.StartInfluxDB()
+
+	go func() {
+		for {
+			log.Println("Waiting for Signal")
+			select {
+			case <-signal.SigChan.Start:
+				processes, err := utils.GetProcsByName()
+				if err != nil {
+					log.Println("Error getting processes by name")
+					continue
+				}
+				scm.SCM(processes, influxWrite)
+			case <-signal.SigChan.Kill:
+				log.Println("Killing SCM Server")
+			}
+		}
+	}()
+
+	http.ListenAndServe(":1910", r)
+	log.Println("SCM Server Started")
 }
+
+// Routes Needed
+// 1. /start
+// 2. /stop
+// 4. /status
+// 5. /metrics
+// 6. /graph

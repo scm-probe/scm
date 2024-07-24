@@ -3,21 +3,20 @@ package utils
 import (
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 )
 
-func GetProcsByName() []int {
+func GetProcsByName() ([]int, error) {
 	if ProcID > 0 {
-		return []int{ProcID}
+		return []int{ProcID}, nil
 	}
 	processes, _ := exec.Command("/bin/sh", "-c", fmt.Sprintf("pgrep %s", ProcName)).Output()
 	var Procs []int
 	if len(processes) == 0 {
 		log.Println("Getting Process: No Process Found")
-		os.Exit(1)
+		return nil, fmt.Errorf("No Process Found")
 	}
 	proc := strings.Split(string(processes), "\n")
 	for _, p := range proc {
@@ -27,5 +26,5 @@ func GetProcsByName() []int {
 		}
 		Procs = append(Procs, temp)
 	}
-	return Procs
+	return Procs, nil
 }

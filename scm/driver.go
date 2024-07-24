@@ -1,9 +1,9 @@
 package scm
 
 import (
+	"context"
 	"log"
 	"os"
-	"os/signal"
 	"time"
 
 	"github.com/cilium/ebpf/link"
@@ -11,11 +11,12 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/utkarsh-1905/scm/exporter"
 	sc_graph "github.com/utkarsh-1905/scm/graph"
+	"github.com/utkarsh-1905/scm/signal"
 	"github.com/utkarsh-1905/scm/utils"
 )
 
 // SCM: system-call-monitor
-func SCM(procIDs []int, influxWrite api.WriteAPI) {
+func SCM(procIDs []int, influxWrite api.WriteAPIBlocking) {
 	if err := rlimit.RemoveMemlock(); err != nil {
 		log.Fatal("Removing memlock:", err)
 	}
@@ -60,21 +61,19 @@ func SCM(procIDs []int, influxWrite api.WriteAPI) {
 
 	tick := time.NewTicker(5 * time.Second)
 	defer tick.Stop()
-	stop := make(chan os.Signal, 5)
-	signal.Notify(stop, os.Interrupt)
 
 	if utils.Graph {
 		go sc_graph.ReadQueue(objs.CallQueue)
 	}
 
+	ctx := context.Background()
 	for {
 		select {
 		case <-tick.C:
-			go exporter.UpdateMetrics(objs.SysCalls, influxWrite)
-		case <-stop:
+			go exporter.UpdateMetrics(objs.SysCalls, ctx, influxWrite)
+		case <-signal.SigChan.Stop:
 			sc_graph.DrawGraph()
 			log.Println("Received signal, exiting..")
-			os.Exit(0)
 			return
 		}
 	}
