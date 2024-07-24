@@ -9,7 +9,10 @@ import (
 	"github.com/influxdata/influxdb-client-go/v2/api"
 )
 
-func StartInfluxDB() api.WriteAPIBlocking {
+var WriteAPI api.WriteAPIBlocking
+var QueryAPI api.QueryAPI
+
+func StartInfluxDB() {
 	influxToken := os.Getenv("INFLUXDB_TOKEN")
 	url := "http://localhost:8086"
 	client := influxdb2.NewClient(url, influxToken)
@@ -17,12 +20,13 @@ func StartInfluxDB() api.WriteAPIBlocking {
 	org := "scm"
 	bucket := "scm_monitoring"
 	writeAPI := client.WriteAPIBlocking(org, bucket)
-
+	queryAPI := client.QueryAPI(org)
 	ready, err := client.Ready(context.Background())
 	if err != nil {
 		log.Println("Error in InfluxDB: ", err)
 	}
 	log.Println("Influx DB Ready? ", *ready.Status, " Since: ", *ready.Up)
 
-	return writeAPI
+	WriteAPI = writeAPI
+	QueryAPI = queryAPI
 }

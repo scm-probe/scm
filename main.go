@@ -30,7 +30,7 @@ func main() {
 
 	defer signal.KillAllChan()
 
-	influxWrite := utils.StartInfluxDB()
+	utils.StartInfluxDB()
 
 	go func() {
 		for {
@@ -42,7 +42,7 @@ func main() {
 					log.Println("Error getting processes by name")
 					continue
 				}
-				scm.SCM(processes, influxWrite)
+				scm.SCM(processes, utils.WriteAPI)
 			case <-signal.SigChan.Kill:
 				log.Println("Killing SCM Server")
 			}

@@ -1,11 +1,13 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
 
+	sc_graph "github.com/utkarsh-1905/scm/graph"
 	"github.com/utkarsh-1905/scm/signal"
 	"github.com/utkarsh-1905/scm/utils"
 )
@@ -59,6 +61,24 @@ func Stop(w http.ResponseWriter, _ *http.Request) {
 
 func Status(w http.ResponseWriter, r *http.Request) {}
 
-func Metrics(w http.ResponseWriter, r *http.Request) {}
+func Metrics(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+	if query == "" {
+		http.Error(w, "Query not provided", http.StatusBadRequest)
+		return
+	}
+	res, err := utils.QueryInfluxDB(query)
+	if err != nil {
+		http.Error(w, "Error querying InfluxDB", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(res))
+}
 
-func Graph(w http.ResponseWriter, r *http.Request) {}
+func Graph(w http.ResponseWriter, r *http.Request) {
+	var dot bytes.Buffer
+	sc_graph.DrawGraphOutputIO(&dot)
+	w.WriteHeader(http.StatusOK)
+	w.Write(dot.Bytes())
+}

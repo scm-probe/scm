@@ -1,6 +1,7 @@
 package sc_graph
 
 import (
+	"bytes"
 	"log"
 	"os"
 	"time"
@@ -26,7 +27,6 @@ func ReadQueue(queue *ebpf.Map) {
 			err := queue.LookupAndDelete(nil, &currValue)
 			if err == nil {
 				currCall := SYSCALL_TABLE[currValue]
-				log.Println(prevValue, currCall)
 				AddVertex(currCall)
 				AddEdge(prevValue, currCall)
 				prevValue = currCall
@@ -74,6 +74,10 @@ func DrawGraph() {
 	log.Println("Order of graph is: ", order)
 	log.Println("Size of graph is: ", size)
 	log.Println("*************************")
-	file, _ := os.Create("temp/graph.gv")
+	file, _ := os.Create("dot/graph.gv")
 	_ = draw.DOT(G, file, draw.GraphAttribute("label", "System Call Sequence"))
+}
+
+func DrawGraphOutputIO(w *bytes.Buffer) {
+	_ = draw.DOT(G, w, draw.GraphAttribute("label", "System Call Sequence"))
 }
