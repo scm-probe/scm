@@ -2,7 +2,6 @@ package utils
 
 import (
 	"flag"
-	"log"
 	"os"
 )
 
@@ -23,11 +22,6 @@ func AddAndParseFlags() {
 
 	if ParseDump {
 		ProcessDump()
-	}
-
-	if ProcName == "" && ProcID == -1 {
-		log.Println("Invalid Process : ", ProcName)
-		os.Exit(0)
 	}
 
 	if *HELP {

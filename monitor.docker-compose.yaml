@@ -1,16 +1,6 @@
 version: "3"
 
 services:
-  grafana:
-    image: grafana/grafana-enterprise
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana-storage:/var/lib/grafana
-    network_mode: host
-
   influxdb:
     image: influxdb:latest
     container_name: influxdb
@@ -28,6 +18,5 @@ services:
       - influxdb-config:/etc/influxdb
     network_mode: host
 volumes:
-  grafana-storage: {}
   influxdb-storage: {}
   influxdb-config: {}
