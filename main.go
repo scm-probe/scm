@@ -31,6 +31,7 @@ func main() {
 	defer signal.KillAllChan()
 
 	utils.StartInfluxDB()
+	utils.CheckCMDFlags()
 
 	go func() {
 		for {

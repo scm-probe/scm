@@ -53,7 +53,7 @@ static void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
         bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
     }
 }
-// fork and vfork calls use clone call instead so tracking the clone syscall
+// fork and vfork calls use clone call instead ,so tracking the clone syscall
 SEC("tp/syscalls/sys_exit_clone")
 static __always_inline void add_clone(struct syscall_fork_exit_t* ctx){
     __u32 pid = bpf_get_current_pid_tgid() >> 32;

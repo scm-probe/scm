@@ -3,6 +3,8 @@ package utils
 import (
 	"flag"
 	"os"
+
+	"github.com/utkarsh-1905/scm/signal"
 )
 
 var ProcName = ""
@@ -29,4 +31,10 @@ func AddAndParseFlags() {
 		os.Exit(0)
 	}
 
+}
+
+func CheckCMDFlags() {
+	if ProcName != "" || ProcID != -1 {
+		signal.SigChan.Start <- true
+	}
 }
