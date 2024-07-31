@@ -24,6 +24,11 @@ SCM or system-call-montior is monitoring/auditing tool aimed at tracing system c
 - Run `make build` to compile the app
 - Run `sudo ./main -n="name of the process you want to trace"` to run the compiled binary, you can also use `-id=<id of proc>` flag to explicilty provide the process id to track.
 
+## Attaching scm to your docker containers
+
+- Start your docker container using `docker-compose -f /path/to/your/docker-compose.yml up -d`
+- Run the script `./docker-monitor /path/to/your/docker-compose.yml`
+
 ## Developing Environment
 
 - Go version=1.22.0+
