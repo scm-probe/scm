@@ -24,11 +24,11 @@ var SigChan = SigChanType{
 	Kill:   Kill,
 }
 
-func KillAllChan() {
-	log.Println("Closing all channels")
-	defer close(Start)
-	defer close(Stop)
-	defer close(Status)
-	defer close(Graph)
-	defer close(Kill)
-}
+// func KillAllChan() {
+// 	log.Println("Closing all channels")
+// 	defer close(Start)
+// 	defer close(Stop)
+// 	defer close(Status)
+// 	defer close(Graph)
+// 	defer close(Kill)
+// }
