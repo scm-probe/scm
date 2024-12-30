@@ -50,7 +50,7 @@ static void bpf_prog(struct bpf_raw_tracepoint_args *ctx){
         }
         count++;
         bpf_map_update_elem(&sys_calls, &call_id, &count, BPF_ANY);
-        bpf_map_push_elem(&call_queue, &call_id, BPF_EXIST);
+        bpf_map_push_elem(&call_queue, &call_id, BPF_ANY);
     }
 }
 // fork and vfork calls use clone call instead ,so tracking the clone syscall
