@@ -28,8 +28,6 @@ func main() {
 	server.RegisterRoutesAndMiddleware(subRouter)
 	r.PathPrefix("/").Handler(subRouter)
 
-	defer signal.KillAllChan()
-
 	utils.StartInfluxDB()
 	utils.CheckCMDFlags()
 

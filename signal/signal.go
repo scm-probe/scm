@@ -1,7 +1,5 @@
 package signal
 
-import "log"
-
 type SigChanType struct {
 	Start  chan bool
 	Stop   chan bool
