@@ -29,3 +29,6 @@ graph:
 	echo "Graph svg is created in temp folder"
 	# for GNOME users
 	xdg-open temp/graph.gv.svg
+
+test:
+	go run main.go -t=true

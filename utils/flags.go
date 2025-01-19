@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/utkarsh-1905/scm/signal"
+	"github.com/utkarsh-1905/scm/singing"
 )
 
 var ProcName = ""
@@ -12,6 +13,7 @@ var ProcID int
 var ParseDump = false
 var Graph = false
 var HELP = flag.Bool("h", false, "Prints the help message")
+var Test = false
 
 func AddAndParseFlags() {
 
@@ -19,11 +21,16 @@ func AddAndParseFlags() {
 	flag.BoolVar(&ParseDump, "d", false, "Parse the Dump file to show sys call names")
 	flag.IntVar(&ProcID, "id", -1, "Process ID to trace")
 	flag.BoolVar(&Graph, "g", false, "Enable Graph Mode")
-
+	flag.BoolVar(&Test, "t", false, "Run Test Functions")
 	flag.Parse()
 
 	if ParseDump {
 		ProcessDump()
+	}
+
+	if Test {
+		singing.GenerateSound()
+		os.Exit(0)
 	}
 
 	if *HELP {

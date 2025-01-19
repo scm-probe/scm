@@ -13,7 +13,11 @@ import (
 )
 
 func main() {
-	log.Println("Starting Metrics Server")
+
+	// if utils.Test {
+	// 	singing.GenerateSound()
+	// 	os.Exit(0)
+	// }
 
 	err := godotenv.Load()
 	if err != nil {

@@ -25,7 +25,6 @@ func parseSysCallTable(name string) [][]string {
 		log.Println("Error in reading csv: ", err)
 	}
 
-	log.Println("Reading: ", len(records), " records")
 	return records
 }
 
